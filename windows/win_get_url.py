@@ -49,7 +49,30 @@ options:
     required: false
     choices: [ "yes", "no" ]
     default: yes
-author: "Paul Durivage (@angstwad)"
+  proxy_url:
+    description:
+      - The full URL of the proxy server a file to download through it.
+    version_added: "2.0"
+    required: false
+    choices: null
+    default: null
+  user:
+    description:
+      - Name of the user for authorization of the proxy server.
+    version_added: "2.0"
+    required: false
+    choices: null
+    default: null
+  pass:
+    description:
+      - Password of the user for authorization of the proxy server.
+    version_added: "2.0"
+    required: false
+    choices: null
+    default: null
+author:
+    - "Paul Durivage (@angstwad)"
+    - "Takeshi Kuramochi (tksarah)"
 '''
 
 EXAMPLES = '''
@@ -68,4 +91,12 @@ $ ansible -i hosts -c winrm -m win_get_url -a "url=http://www.example.com/earthr
     url: 'http://www.example.com/earthrise.jpg'
     dest: 'C:\Users\RandomUser\earthrise.jpg'
     force: no
+
+- name: Download earthrise.jpg to 'C:\Users\RandomUser\earthrise.jpg' through the proxy server.
+  win_get_url:
+    url: 'http://www.example.com/earthrise.jpg'
+    dest: 'C:\Users\RandomUser\earthrise.jpg'
+    proxy_url: 'http://10.0.0.1:8080'
+    user: 'username'
+    pass: 'password'
 '''
