@@ -56,14 +56,14 @@ options:
     required: false
     choices: null
     default: null
-  user:
+  proxy_username:
     description:
       - Name of the user for authorization of the proxy server.
     version_added: "2.0"
     required: false
     choices: null
     default: null
-  pass:
+  proxy_password:
     description:
       - Password of the user for authorization of the proxy server.
     version_added: "2.0"

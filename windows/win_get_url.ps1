@@ -46,10 +46,10 @@ If ($force -or -not (Test-Path $dest)) {
     $client = New-Object System.Net.WebClient
     if($params.proxy_url) {
         $proxy_url = $params.proxy_url
-        $user = $params.user
-        $pass = $params.pass
+        $proxy_username = $params.proxy_username
+        $proxy_password = $params.proxy_password
         $proxy_server = New-Object System.Net.WebProxy($proxy_url, $true)
-        $credential = New-Object System.Net.NetworkCredential($user, $pass)
+        $credential = New-Object System.Net.NetworkCredential($proxy_username, $proxy_password)
         $proxy_server.Credentials = $credential
         $client.Proxy = $proxy_server
     }
