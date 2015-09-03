@@ -97,6 +97,6 @@ $ ansible -i hosts -c winrm -m win_get_url -a "url=http://www.example.com/earthr
     url: 'http://www.example.com/earthrise.jpg'
     dest: 'C:\Users\RandomUser\earthrise.jpg'
     proxy_url: 'http://10.0.0.1:8080'
-    user: 'username'
-    pass: 'password'
+    proxy_username: 'username'
+    proxy_password: 'password'
 '''
