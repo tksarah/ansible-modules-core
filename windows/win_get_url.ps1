@@ -40,18 +40,33 @@ Else {
     Fail-Json $result "missing required argument: dest"
 }
 
+$skip_certificate_validation = Get-Attr $params "skip_certificate_validation" $false | ConvertTo-Bool
+$username = Get-Attr $params "username"
+$password = Get-Attr $params "password"
+
+if($skip_certificate_validation){
+  [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
+}
+
 $force = Get-Attr -obj $params -name "force" "yes" | ConvertTo-Bool
 
 If ($force -or -not (Test-Path $dest)) {
     $client = New-Object System.Net.WebClient
+
     if($params.proxy_url) {
         $proxy_url = $params.proxy_url
-        $proxy_username = $params.proxy_username
-        $proxy_password = $params.proxy_password
+        if($proxy_username -and $proxy_passworda){
+            $proxy_username = $params.proxy_username
+            $proxy_password = $params.proxy_password
+            $proxy_credential = New-Object System.Net.NetworkCredential($proxy_username, $proxy_password)
+            $proxy_server.Credentials = $proxy_credential
+        }
         $proxy_server = New-Object System.Net.WebProxy($proxy_url, $true)
-        $credential = New-Object System.Net.NetworkCredential($proxy_username, $proxy_password)
-        $proxy_server.Credentials = $credential
         $client.Proxy = $proxy_server
+    }
+
+    if($username -and $password){
+        $client.Credentials = New-Object System.Net.NetworkCredential($username, $password)
     }
 
     Try {
@@ -59,12 +74,17 @@ If ($force -or -not (Test-Path $dest)) {
         $result.changed = $true
     }
     Catch {
-        Fail-Json $result "Error downloading $url to $dest"
+        Fail-Json $result "Error downloading $url to $dest $($_.Exception.Message)"
     }
 }
 Else {
     Try {
         $webRequest = [System.Net.HttpWebRequest]::Create($url)
+
+        if($username -and $password){
+            $webRequest.Credentials = New-Object System.Net.NetworkCredential($username, $password)
+        }
+
         $webRequest.IfModifiedSince = ([System.IO.FileInfo]$dest).LastWriteTime
         $webRequest.Method = "GET"
         [System.Net.HttpWebResponse]$webResponse = $webRequest.GetResponse()
@@ -77,11 +97,11 @@ Else {
     }
     Catch [System.Net.WebException] {
         If ($_.Exception.Response.StatusCode -ne [System.Net.HttpStatusCode]::NotModified) {
-            Fail-Json $result "Error downloading $url to $dest"
+            Fail-Json $result "Error downloading $url to $dest $($_.Exception.Message)"
         }
     }
     Catch {
-        Fail-Json $result "Error downloading $url to $dest"
+        Fail-Json $result "Error downloading $url to $dest $($_.Exception.Message)"
     }
 }
 
