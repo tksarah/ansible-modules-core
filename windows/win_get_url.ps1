@@ -44,6 +44,10 @@ $skip_certificate_validation = Get-Attr $params "skip_certificate_validation" $f
 $username = Get-Attr $params "username"
 $password = Get-Attr $params "password"
 
+$proxy_url = $params.proxy_url
+$proxy_username = $params.proxy_username
+$proxy_password = $params.proxy_password
+
 if($skip_certificate_validation){
   [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
 }
@@ -53,15 +57,12 @@ $force = Get-Attr -obj $params -name "force" "yes" | ConvertTo-Bool
 If ($force -or -not (Test-Path $dest)) {
     $client = New-Object System.Net.WebClient
 
-    if($params.proxy_url) {
-        $proxy_url = $params.proxy_url
-        if($proxy_username -and $proxy_passworda){
-            $proxy_username = $params.proxy_username
-            $proxy_password = $params.proxy_password
+    if($proxy_url){
+        $proxy_server = New-Object System.Net.WebProxy($proxy_url, $true)
+        if($proxy_username -and $proxy_password){
             $proxy_credential = New-Object System.Net.NetworkCredential($proxy_username, $proxy_password)
             $proxy_server.Credentials = $proxy_credential
         }
-        $proxy_server = New-Object System.Net.WebProxy($proxy_url, $true)
         $client.Proxy = $proxy_server
     }
 
